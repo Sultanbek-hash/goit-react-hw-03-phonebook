@@ -7,30 +7,36 @@ import ContactForm from 'components/ContactForm/ContactForm';
 import ContactList from 'components/ContactList/ContactList';
 import Filter from 'components/Filter/Filter';
 
+const CONTACTS = [
+  { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
+  { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
+  { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
+  { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
+];
+
 class App extends Component {
   state = {
-    contacts: [
-      { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-      { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-      { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-      { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-    ],
+    contacts: [],
     filter: '',
   };
 
   componentDidMount(){
-    const saveContact = localStorage.getItem('contacts');
+    const saveContact = localStorage.getItem('contacts'); // Получаем данные из localStorage.
+    const parsedContacts = JSON.parse(saveContact) // Преобразуем данные из строки JSON в объект JavaScript.
     if(saveContact !== null){
-      this.setState( { contacts: JSON.parse(saveContact) } );
+      this.setState( { contacts:  parsedContacts} ); // Устанавливаем полученные контакты в обьект "contacts".
+    }else{
+      this.setState({ contacts: CONTACTS });
     }
   }
 
   componentDidUpdate(prevProps, prevState){
-    const {contacts} = this.state;
-    if( contacts !== prevState.contacts){
-      localStorage.setItem('conatcts', JSON.stringify(contacts));
+    const {contacts } = this.state;
+    if( prevState.contacts !==  contacts ){
+      // Сравниваем текущие контакты с предыдущим обьектом контактов.
+      localStorage.setItem('contacts', JSON.stringify(contacts));
+      // Если контакты изменились, сохраняем их в localStorage.
     }
-
   }
  
 
@@ -44,7 +50,6 @@ class App extends Component {
   };
 
   changeFilter = e => {
-    // e.preventDefault();
     this.setState({ filter: e.currentTarget.value });
   };
 
