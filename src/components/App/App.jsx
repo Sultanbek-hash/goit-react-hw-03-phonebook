@@ -8,20 +8,6 @@ import ContactList from 'components/ContactList/ContactList';
 import Filter from 'components/Filter/Filter';
 
 class App extends Component {
-  componentDidMount(){
-    const saveContact = localStorage.getItem('contacts');
-    if(saveContact !== null){
-      this.setState({contacts: JSON.parse(saveContact)});
-    }
-  }
-
-  componentDidUpdate(prevProps, prevState){
-    const {contacts} = this.state;
-    if(prevState.contacts !== contacts){
-      localStorage.setItem('conatcts', JSON.stringify(contacts));
-    }
-
-  }
   state = {
     contacts: [
       { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
@@ -32,14 +18,29 @@ class App extends Component {
     filter: '',
   };
 
+  componentDidMount(){
+    const saveContact = localStorage.getItem('contacts');
+    if(saveContact !== null){
+      this.setState( { contacts: JSON.parse(saveContact) } );
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState){
+    const {contacts} = this.state;
+    if( contacts !== prevState.contacts){
+      localStorage.setItem('conatcts', JSON.stringify(contacts));
+    }
+
+  }
+ 
+
   handleSubmit = data => {
     const equalName = this.state.contacts.find(
       el => el.name.toLowerCase() === data.name.toLowerCase()
     );
     if (equalName) {return alert(equalName.name + ' is already in contacts.')};
 
-    data.id = nanoid();
-    this.setState(prev => ({ contacts: [data, ...prev.contacts] }));
+    this.setState(prev => ({ contacts: [{id: nanoid(), ...data}, ...prev.contacts], }));
   };
 
   changeFilter = e => {
@@ -57,14 +58,16 @@ class App extends Component {
   };
 
   deleteContacts = id => {
-    this.setState(prevState => ({
-      contacts: prevState.contacts.filter(contact => contact.id !== id),
-    }));
+    this.setState(prevState => {
+      return {
+        contacts: prevState.contacts.filter(contact => contact.id !== id),
+      }
+    });
   };
 
   render() {
     const { filter, contacts } = this.state;
-
+    const visibleContacts = this.getVisibleContacts();
     return (
       <Container>
         <Title>Phonebook</Title>
@@ -74,7 +77,7 @@ class App extends Component {
         <Filter value={filter} onChange={this.changeFilter} />
         {contacts.length ? (
           <ContactList
-            contacts={this.getVisibleContacts()}
+            contacts={visibleContacts}
             onDelete={this.deleteContacts}
           />
         ) : (
